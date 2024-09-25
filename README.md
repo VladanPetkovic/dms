@@ -15,6 +15,13 @@ Submit-date: -
 University of Applied Sciences Technikum Wien
 
 ---
+### How to use docker-compose
+[<kbd>**View docker-infos** &rarr;</kbd>](docs/docker_infos.md)
+
+### How to access the Swagger UI
+[<kbd>**View Swagger-UI usage** &rarr;</kbd>](docs/swagger_ui_usage.md)
+
+---
 ### Project access
 
 
