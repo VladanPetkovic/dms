@@ -7,6 +7,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.example.dms.rest.model.Document;
 import org.example.dms.rest.service.DocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,12 +43,17 @@ public class DocumentController {
 
     @Operation(summary = "Get all documents")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Retrieved all documents"),
+            @ApiResponse(responseCode = "200", description = "Retrieved all documents")
     })
-    @GetMapping
-    public ResponseEntity<List<Document>> getAllDocuments() {
-        List<Document> documents = documentService.getAllDocuments();
-        return ResponseEntity.ok(documents);
+    @GetMapping("/documents")
+    public ResponseEntity<Page<Document>> getAllDocuments(
+            @RequestParam(required = false) String name,            // Filter by name (optional)
+            @RequestParam(defaultValue = "0") int page,             // Page number (defaults to 0)
+            @RequestParam(defaultValue = "10") int maxCountDocuments // Max documents per page (defaults to 10)
+    ) {
+        Pageable pageable = PageRequest.of(page, maxCountDocuments);
+        Page<Document> documentPage = documentService.getDocumentsByName(name, pageable);
+        return ResponseEntity.ok(documentPage);
     }
 
     @Operation(summary = "Get document by ID")

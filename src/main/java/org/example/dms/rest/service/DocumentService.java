@@ -5,6 +5,8 @@ import org.apache.logging.log4j.LogManager;
 import org.example.dms.rest.model.Document;
 import org.example.dms.rest.repository.DocumentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -74,6 +76,15 @@ public class DocumentService {
             logger.warn("Document not found with ID: {}", id);
         }
         return document;
+    }
+
+    public Page<Document> getDocumentsByName(String name, Pageable pageable) {
+        // TODO: add logger
+        if (name == null || name.isEmpty()) {
+            return documentRepository.findAll(pageable);
+        } else {
+            return documentRepository.findByNameContainingIgnoreCase(name, pageable);
+        }
     }
 
     /**
