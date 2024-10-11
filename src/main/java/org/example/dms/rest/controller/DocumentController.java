@@ -45,11 +45,14 @@ public class DocumentController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Retrieved all documents")
     })
-    @GetMapping("/documents")
+    @GetMapping
     public ResponseEntity<Page<Document>> getAllDocuments(
             @RequestParam(required = false) String name,            // Filter by name (optional)
             @RequestParam(defaultValue = "0") int page,             // Page number (defaults to 0)
             @RequestParam(defaultValue = "10") int maxCountDocuments // Max documents per page (defaults to 10)
+            @RequestParam(required = false) String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int maxCountDocuments
     ) {
         Pageable pageable = PageRequest.of(page, maxCountDocuments);
         Page<Document> documentPage = documentService.getDocumentsByName(name, pageable);

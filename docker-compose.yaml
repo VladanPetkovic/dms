@@ -43,6 +43,19 @@ services:
       - app-network
     restart: unless-stopped
 
+  nginx:
+    image: nginx:latest
+    container_name: nginx-container
+    ports:
+      - "80:80"
+    volumes:
+      - ./src/main/frontend:/usr/share/nginx/html
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - app-network
+    depends_on:
+      - springboot-app
+
 networks:
   app-network:
     driver: bridge
