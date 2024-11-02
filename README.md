@@ -15,6 +15,9 @@ Submit-date: -
 University of Applied Sciences Technikum Wien
 
 ---
+### How to run the frontend
+[<kbd>**View react-infos** &rarr;</kbd>](docs/react_infos.md)
+
 ### How to use docker-compose
 [<kbd>**View docker-infos** &rarr;</kbd>](docs/docker_infos.md)
 
