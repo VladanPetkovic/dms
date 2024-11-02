@@ -21,9 +21,7 @@ public class Document {
 
     private LocalDateTime created_at = LocalDateTime.now();
     private LocalDateTime updated_at;
-
-    @Transient // should not be persisted
-    private MultipartFile file;
+    private String path;
 
     // File content as binary data
     @Lob
