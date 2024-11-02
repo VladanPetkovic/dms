@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -102,9 +103,7 @@ public class DocumentService {
             // Update document properties
             document.setName(updatedDocument.getName());
             document.setDescription(updatedDocument.getDescription());
-            document.setType(updatedDocument.getType());
-            document.setData(updatedDocument.getData());
-            document.setUpdated_at(updatedDocument.getUpdated_at());
+            document.setUpdated_at(LocalDateTime.now());
 
             Document savedDocument = documentRepository.save(document);
             logger.info("Document updated successfully for ID: {}", id);
@@ -141,7 +140,7 @@ public class DocumentService {
     public Document saveDocumentFile(Document document, MultipartFile file) {
         logger.info("Saving document file: {}", file.getOriginalFilename());
         try {
-            document.setData(file.getBytes());
+            document.setPath("TODO"); // TODO
             document.setType(file.getContentType());
             return saveDocument(document);
         } catch (Exception e) {

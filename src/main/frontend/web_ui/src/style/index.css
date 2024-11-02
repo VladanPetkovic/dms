@@ -1,6 +1,6 @@
 /* Centering the app container */
 .app-container {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
     text-align: center;
@@ -45,6 +45,36 @@ button:hover {
     background-color: #c0392b;
 }
 
+.update-button {
+    background-color: #007bff;
+}
+
+.update-button:hover {
+    background-color: #379cff;
+}
+
+.save-button {
+    background-color: #0056b3;
+}
+
+.save-button:hover {
+    background-color: #024794;
+}
+
+.cancel-button {
+    background-color: orange;
+}
+
+.cancel-button:hover {
+    background-color: darkorange;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px; /* Space between buttons */
+    align-items: center; /* Align buttons vertically center */
+}
+
 .document-table {
     width: 100%;
     border-collapse: collapse;
@@ -68,4 +98,37 @@ button:hover {
 
 .document-table tr:hover {
     background-color: #e2e2e2;
+}
+
+.error-text {
+    color: red;
+    text-align: center;
+}
+
+.download-button .icon {
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.pagination button {
+    margin: 0 10px;
+    padding: 10px 15px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.pagination button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
