@@ -72,8 +72,8 @@ function DocumentTable({documents, onDelete, onUpdate, onDownload}) {
                                 doc.description
                             )}
                         </td>
-                        <td>{new Date(doc.created_at).toLocaleString()}</td>
-                        <td>{doc.updated_at == null ? "-" : new Date(doc.updated_at).toLocaleString()}</td>
+                        <td>{new Date(doc.createdAt).toLocaleString()}</td>
+                        <td>{doc.updatedAt == null ? "-" : new Date(doc.updatedAt).toLocaleString()}</td>
                         <td>
                             <div className="action-buttons">
                                 {editId === doc.id ? (

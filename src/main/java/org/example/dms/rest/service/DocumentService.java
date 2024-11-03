@@ -2,6 +2,8 @@ package org.example.dms.rest.service;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.example.dms.rest.dto.DocumentDTO;
+import org.example.dms.rest.mapper.DocumentMapper;
 import org.example.dms.rest.model.Document;
 import org.example.dms.rest.repository.DocumentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DocumentService {
@@ -24,101 +27,88 @@ public class DocumentService {
         this.documentRepository = documentRepository;
     }
 
-    /**
-     * Save a single document.
-     *
-     * @param document the document to save.
-     * @return the persisted document entity.
-     */
-    public Document saveDocument(Document document) {
-        logger.info("Attempting to save document: {}", document.getName());
-        Document savedDocument = documentRepository.save(document);
-        logger.info("Document saved successfully with ID: {}", savedDocument.getId());
-        return savedDocument;
+    private final DocumentMapper mapper = DocumentMapper.INSTANCE;
+
+    public DocumentDTO saveDocument(DocumentDTO documentDTO, MultipartFile file) {
+        logger.info("Saving document file: {}", file.getOriginalFilename());
+        try {
+            Document document = mapper.toDocument(documentDTO);
+            document.setPath("TODO"); // TODO: set the actual path
+            document.setCreated_at(LocalDateTime.now());
+            document.setType(file.getContentType());
+            Document savedDocument = documentRepository.save(document);
+            return mapper.toDocumentDTO(savedDocument);
+        } catch (Exception e) {
+            logger.error("Error while saving document file", e);
+            throw new RuntimeException("Failed to save document file", e);
+        }
     }
 
-    /**
-     * Save a batch of documents.
-     *
-     * @param documents the list of documents to save.
-     * @return the list of persisted document entities.
-     */
-    public List<Document> saveDocuments(List<Document> documents) {
-        logger.info("Attempting to save a batch of documents, count: {}", documents.size());
-        documentRepository.saveAll(documents);
-        logger.info("Batch of documents saved successfully, total: {}", documents.size());
-        return documents;
+    public List<DocumentDTO> saveDocuments(List<DocumentDTO> documentDTOs) {
+        logger.info("Attempting to save a batch of documents, count: {}", documentDTOs.size());
+        List<Document> documents = documentDTOs.stream()
+                .map(mapper::toDocument)
+                .collect(Collectors.toList());
+        List<Document> savedDocuments = documentRepository.saveAll(documents);
+        logger.info("Batch of documents saved successfully, total: {}", savedDocuments.size());
+        return savedDocuments.stream()
+                .map(mapper::toDocumentDTO)
+                .collect(Collectors.toList());
     }
 
-    /**
-     * Get all documents.
-     *
-     * @return the list of documents.
-     */
-    public List<Document> getAllDocuments() {
+    public List<DocumentDTO> getAllDocuments() {
         logger.info("Fetching all documents");
         List<Document> documents = documentRepository.findAll();
         logger.info("Retrieved all documents, count: {}", documents.size());
-        return documents;
+        return documents.stream()
+                .map(mapper::toDocumentDTO)
+                .collect(Collectors.toList());
     }
 
-    /**
-     * Get one document by ID.
-     *
-     * @param id the ID of the document.
-     * @return the document entity, if found.
-     */
-    public Optional<Document> getDocumentById(Long id) {
+    public Optional<DocumentDTO> getDocumentById(Long id) {
         logger.info("Fetching document by ID: {}", id);
         Optional<Document> document = documentRepository.findById(id);
         if (document.isPresent()) {
             logger.info("Document found with ID: {}", id);
+            return document.map(mapper::toDocumentDTO);
         } else {
             logger.warn("Document not found with ID: {}", id);
+            return Optional.empty();
         }
-        return document;
     }
 
-    public Page<Document> getDocumentsByName(String name, Pageable pageable) {
-        // TODO: add logger
+    public Page<DocumentDTO> getDocumentsByName(String name, Pageable pageable) {
+        logger.info("Fetching documents by name: {}", name);
+        Page<Document> documentPage;
         if (name == null || name.isEmpty()) {
-            return documentRepository.findAll(pageable);
+            documentPage = documentRepository.findAll(pageable);
         } else {
-            return documentRepository.findByNameContainingIgnoreCase(name, pageable);
+            documentPage = documentRepository.findByNameContainingIgnoreCase(name, pageable);
         }
+        return documentPage.map(mapper::toDocumentDTO);
     }
 
-    /**
-     * Update an existing document.
-     *
-     * @param id              the ID of the document to update.
-     * @param updatedDocument the updated document data.
-     * @return the updated document entity.
-     */
-    public Document updateDocument(Long id, Document updatedDocument) {
+    public DocumentDTO updateDocument(Long id, DocumentDTO updatedDocumentDTO) {
         logger.info("Attempting to update document with ID: {}", id);
         Optional<Document> existingDocument = documentRepository.findById(id);
         if (existingDocument.isPresent()) {
             Document document = existingDocument.get();
             // Update document properties
-            document.setName(updatedDocument.getName());
-            document.setDescription(updatedDocument.getDescription());
+            document.setName(updatedDocumentDTO.getName());
+            document.setDescription(updatedDocumentDTO.getDescription());
             document.setUpdated_at(LocalDateTime.now());
+            document.setPath(updatedDocumentDTO.getPath());
+            document.setType(updatedDocumentDTO.getType());
 
             Document savedDocument = documentRepository.save(document);
             logger.info("Document updated successfully for ID: {}", id);
-            return savedDocument;
+            return mapper.toDocumentDTO(savedDocument);
         } else {
             logger.error("Failed to find document with ID: {}", id);
             throw new RuntimeException("Document not found");
         }
     }
 
-    /**
-     * Delete a document by ID.
-     *
-     * @param id the ID of the document.
-     */
     public void deleteDocument(Long id) {
         logger.info("Attempting to delete document with ID: {}", id);
         try {
@@ -127,25 +117,6 @@ public class DocumentService {
         } catch (Exception e) {
             logger.error("Failed to delete document with ID: {}", id, e);
             throw e;
-        }
-    }
-
-    /**
-     * Save a document file, typically when uploading.
-     *
-     * @param document the document metadata.
-     * @param file     the file to be saved.
-     * @return the saved document entity.
-     */
-    public Document saveDocumentFile(Document document, MultipartFile file) {
-        logger.info("Saving document file: {}", file.getOriginalFilename());
-        try {
-            document.setPath("TODO"); // TODO
-            document.setType(file.getContentType());
-            return saveDocument(document);
-        } catch (Exception e) {
-            logger.error("Error while saving document file", e);
-            throw new RuntimeException("Failed to save document file");
         }
     }
 }

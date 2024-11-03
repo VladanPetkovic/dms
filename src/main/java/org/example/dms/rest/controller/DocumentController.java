@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.example.dms.rest.dto.DocumentDTO;
 import org.example.dms.rest.model.Document;
 import org.example.dms.rest.service.DocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +35,11 @@ public class DocumentController {
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
     @PostMapping
-    public ResponseEntity<Document> uploadDocument(
-            @Parameter(description = "Document metadata") @ModelAttribute Document document,
+    public ResponseEntity<DocumentDTO> uploadDocument(
+            @Parameter(description = "Document metadata") @ModelAttribute DocumentDTO documentDTO,
             @Parameter(description = "File to upload") @RequestParam MultipartFile file) {
-        Document savedDocument = documentService.saveDocumentFile(document, file);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedDocument);
+        DocumentDTO savedDocumentDTO = documentService.saveDocument(documentDTO, file);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedDocumentDTO);
     }
 
     @Operation(summary = "Get all documents")
@@ -46,13 +47,13 @@ public class DocumentController {
             @ApiResponse(responseCode = "200", description = "Retrieved all documents")
     })
     @GetMapping
-    public ResponseEntity<Page<Document>> getAllDocuments(
+    public ResponseEntity<Page<DocumentDTO>> getAllDocuments(
             @RequestParam(required = false) String name,            // Filter by name (optional)
             @RequestParam(defaultValue = "0") int page,             // Page number (defaults to 0)
             @RequestParam(defaultValue = "10") int maxCountDocuments // Max documents per page (defaults to 10)
     ) {
         Pageable pageable = PageRequest.of(page, maxCountDocuments);
-        Page<Document> documentPage = documentService.getDocumentsByName(name, pageable);
+        Page<DocumentDTO> documentPage = documentService.getDocumentsByName(name, pageable);
         return ResponseEntity.ok(documentPage);
     }
 
@@ -62,9 +63,9 @@ public class DocumentController {
             @ApiResponse(responseCode = "404", description = "Document not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<Document> getDocumentById(@Parameter(description = "ID of the document") @PathVariable Long id) {
-        Optional<Document> document = documentService.getDocumentById(id);
-        return document.map(ResponseEntity::ok)
+    public ResponseEntity<DocumentDTO> getDocumentById(@Parameter(description = "ID of the document") @PathVariable Long id) {
+        Optional<DocumentDTO> documentDTO = documentService.getDocumentById(id);
+        return documentDTO.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
@@ -74,11 +75,11 @@ public class DocumentController {
             @ApiResponse(responseCode = "404", description = "Document not found")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<Document> updateDocument(
+    public ResponseEntity<DocumentDTO> updateDocument(
             @Parameter(description = "ID of the document to update") @PathVariable Long id,
-            @Parameter(description = "Updated document data") @RequestBody Document updatedDocument) {
-        Document document = documentService.updateDocument(id, updatedDocument);
-        return ResponseEntity.ok(document);
+            @Parameter(description = "Updated document data") @RequestBody DocumentDTO updatedDocumentDTO) {
+        DocumentDTO documentDTO = documentService.updateDocument(id, updatedDocumentDTO);
+        return ResponseEntity.ok(documentDTO);
     }
 
     @Operation(summary = "Delete document by ID")
