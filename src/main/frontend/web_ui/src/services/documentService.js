@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8081/api/documents'; // Set the base URL to include the port
+const BASE_URL = 'http://localhost:8081/documents'; // Set the base URL to include the port
 
 export async function getDocuments(name = "", page = 0, maxCountDocuments = 10) {
     let url = `${BASE_URL}?page=${page}&maxCountDocuments=${maxCountDocuments}`;
@@ -15,7 +15,7 @@ export async function uploadDocument(formData) {
         method: 'POST',
         body: formData,
     });
-    if (response.ok) {
+    if (response.status === 201) {
         return await response.json(); // Return the response if upload is successful
     } else if (response.status === 400) {
         console.log(response);
