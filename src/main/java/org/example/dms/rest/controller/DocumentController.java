@@ -21,7 +21,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/documents")
-@CrossOrigin(origins = {"http://localhost:8080", "http://localhost:8081", "http://localhost:80"}) // TODO: does not work
 public class DocumentController {
     private final DocumentService documentService;
 
