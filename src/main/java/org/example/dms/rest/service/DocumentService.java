@@ -1,5 +1,9 @@
 package org.example.dms.rest.service;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.example.dms.rest.dto.DocumentDTO;
@@ -15,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +33,8 @@ public class DocumentService {
     }
 
     private final DocumentMapper mapper = DocumentMapper.INSTANCE;
+    private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+    private final Validator validator = factory.getValidator();
 
     public DocumentDTO saveDocument(DocumentDTO documentDTO, MultipartFile file) {
         logger.info("Saving document file: {}", file.getOriginalFilename());
@@ -36,6 +43,7 @@ public class DocumentService {
             document.setPath("TODO"); // TODO: set the actual path
             document.setCreated_at(LocalDateTime.now());
             document.setType(file.getContentType());
+            validateDocument(document);
             Document savedDocument = documentRepository.save(document);
             return mapper.toDocumentDTO(savedDocument);
         } catch (Exception e) {
@@ -98,8 +106,9 @@ public class DocumentService {
             document.setDescription(updatedDocumentDTO.getDescription());
             document.setUpdated_at(LocalDateTime.now());
             document.setPath(updatedDocumentDTO.getPath());
-            document.setType(updatedDocumentDTO.getType());
+            document.setType(updatedDocumentDTO.getType()); // TODO: right now, it is not possible to update the file - therefor: change this
 
+            validateDocument(document);
             Document savedDocument = documentRepository.save(document);
             logger.info("Document updated successfully for ID: {}", id);
             return mapper.toDocumentDTO(savedDocument);
@@ -118,5 +127,20 @@ public class DocumentService {
             logger.error("Failed to delete document with ID: {}", id, e);
             throw e;
         }
+    }
+
+    private void validateDocument(Document document) {
+        Set<ConstraintViolation<Document>> violations = validator.validate(document);
+        // return if no violations
+        if (violations.isEmpty()) {
+            return;
+        }
+
+        StringBuilder errorMessage = new StringBuilder("Validation failed for Document: ");
+        for (ConstraintViolation<Document> violation : violations) {
+            errorMessage.append(violation.getMessage()).append("; ");
+            logger.error(violation.getMessage());
+        }
+        throw new IllegalArgumentException(errorMessage.toString());
     }
 }
