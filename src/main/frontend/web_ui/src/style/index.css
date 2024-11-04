@@ -132,3 +132,25 @@ button:hover {
     background-color: #ccc;
     cursor: not-allowed;
 }
+
+.notification-banner {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    z-index: 1000;
+    max-width: 300px;
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.notification-banner.success {
+    background-color: #4caf50;
+}
+
+.notification-banner.error {
+    background-color: #f44336;
+}

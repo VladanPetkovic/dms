@@ -21,6 +21,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/documents")
+@CrossOrigin(origins = {"http://localhost:8080", "http://localhost:8081", "http://localhost:80"}) // TODO: does not work
 public class DocumentController {
     private final DocumentService documentService;
 
@@ -72,6 +73,7 @@ public class DocumentController {
     @Operation(summary = "Update document by ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Document updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
             @ApiResponse(responseCode = "404", description = "Document not found")
     })
     @PutMapping("/{id}")

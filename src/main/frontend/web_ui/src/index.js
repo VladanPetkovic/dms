@@ -18,10 +18,19 @@ function App() {
     const [searchQuery, setSearchQuery] = useState('');
     const [totalPages, setTotalPages] = useState(0);
     const [currentPage, setCurrentPage] = useState(0);
+    const [notification, setNotification] = useState(null);
 
     useEffect(() => {
         fetchDocuments();
     }, [searchQuery, currentPage]);
+
+    /**
+     * Function to show notification and auto-hide it after 5 seconds
+     */
+    const showNotification = (message, type = 'success') => {
+        setNotification({message, type});
+        setTimeout(() => setNotification(null), 5000);
+    };
 
     const fetchDocuments = async () => {
         try {
@@ -30,7 +39,8 @@ function App() {
             setDocuments(response.content);
             setTotalPages(response.totalPages);
         } catch (error) {
-            console.error('Error fetching documents:', error);
+            console.error(error);
+            showNotification('Error fetching documents', 'error');
         }
     };
 
@@ -47,8 +57,10 @@ function App() {
         try {
             await uploadDocument(formData);
             await fetchDocuments();
+            showNotification('Document uploaded successfully');
         } catch (error) {
-            console.error('Error uploading document:', error);
+            console.error(error);
+            showNotification(error.message || 'Failed to upload document', 'error');
         }
     };
 
@@ -56,8 +68,10 @@ function App() {
         try {
             await updateDocumentById(id, updatedData);
             await fetchDocuments();
+            showNotification('Document updated successfully');
         } catch (error) {
-            console.error('Error updating document:', error);
+            console.error(error);
+            showNotification(error.message || 'Failed to update document', 'error');
         }
     };
 
@@ -65,23 +79,32 @@ function App() {
         try {
             await deleteDocument(id);
             await fetchDocuments();
+            showNotification('Document deleted successfully');
         } catch (error) {
-            console.error('Error deleting document:', error);
+            console.error(error);
+            showNotification(error.message || 'Failed to delete document', 'error');
         }
     };
 
     const handleDownload = async (id) => {
         try {
             await downloadDocument(id);
-            console.log("TO BE DONE")
+            console.log("TO BE DONE");
+            showNotification('TO BE DONE');
         } catch (error) {
-            console.error('Error downloading document:', error);
+            console.error(error);
+            showNotification(error.message || 'Failed to download document', 'error');
         }
     };
 
     return (
         <div className="app-container">
             <h1>Document Management System</h1>
+            {notification && (
+                <div className={`notification-banner ${notification.type}`}>
+                    {notification.message}
+                </div>
+            )}
             <UploadForm onUpload={handleUpload}/>
             <SearchBar onSearch={handleSearch}/>
             <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange}/>

@@ -3,12 +3,12 @@ import '../style/index.css';
 import downloadIcon from '../icons/download.png';
 
 function DocumentTable({documents, onDelete, onUpdate, onDownload}) {
-    const [editId, setEditId] = useState(null); // Track the ID of the document being edited
-    const [editData, setEditData] = useState({name: '', description: ''}); // Store edited values temporarily
+    const [editId, setEditId] = useState(null);
+    const [editData, setEditData] = useState(null);
 
     const handleEditClick = (doc) => {
         setEditId(doc.id);
-        setEditData({name: doc.name, description: doc.description}); // Initialize with current values
+        setEditData({...doc}); // Initialize with entire document
     };
 
     const handleSaveClick = (id) => {
@@ -16,13 +16,13 @@ function DocumentTable({documents, onDelete, onUpdate, onDownload}) {
         setEditId(null);
     };
 
-    const handleCancelClick = (id) => {
+    const handleCancelClick = () => {
         setEditId(null);
     }
 
     const handleChange = (e) => {
         const {name, value} = e.target;
-        setEditData((prev) => ({...prev, [name]: value})); // Update editData state
+        setEditData((prev) => ({ ...prev, [name]: value }));
     };
 
     return (
@@ -81,7 +81,7 @@ function DocumentTable({documents, onDelete, onUpdate, onDownload}) {
                                         <button className="save-button" onClick={() => handleSaveClick(doc.id)}>Save
                                         </button>
                                         <button className="cancel-button"
-                                                onClick={() => handleCancelClick(doc.id)}>Cancel
+                                                onClick={() => handleCancelClick()}>Cancel
                                         </button>
                                     </div>
                                 ) : (

@@ -1,12 +1,10 @@
 package org.example.dms.rest.service;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
+import jakarta.validation.*;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.example.dms.rest.dto.DocumentDTO;
+import org.example.dms.rest.exception.DocumentValidationException;
 import org.example.dms.rest.mapper.DocumentMapper;
 import org.example.dms.rest.model.Document;
 import org.example.dms.rest.repository.DocumentRepository;
@@ -46,9 +44,12 @@ public class DocumentService {
             validateDocument(document);
             Document savedDocument = documentRepository.save(document);
             return mapper.toDocumentDTO(savedDocument);
+        } catch (DocumentValidationException e) {
+            logger.error("Validation error while saving document ", e);
+            throw new DocumentValidationException(e.getMessage());
         } catch (Exception e) {
-            logger.error("Error while saving document file", e);
-            throw new RuntimeException("Failed to save document file", e);
+            logger.error("Error while saving document ", e);
+            throw new RuntimeException("Failed to save document ", e);
         }
     }
 
@@ -141,6 +142,6 @@ public class DocumentService {
             errorMessage.append(violation.getMessage()).append("; ");
             logger.error(violation.getMessage());
         }
-        throw new IllegalArgumentException(errorMessage.toString());
+        throw new DocumentValidationException(errorMessage.toString());
     }
 }

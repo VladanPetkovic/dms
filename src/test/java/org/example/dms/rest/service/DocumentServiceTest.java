@@ -166,7 +166,7 @@ public class DocumentServiceTest {
         Exception exception = assertThrows(RuntimeException.class, () -> {
             documentService.saveDocument(invalidDocumentDTO, file);
         });
-        assertTrue(exception.getMessage().contains("Failed to save document file"));
+        assertTrue(exception.getMessage().contains("Validation failed for Document"));
     }
 
     @Test
