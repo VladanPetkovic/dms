@@ -14,11 +14,14 @@ export async function uploadDocument(formData) {
     const response = await fetch(BASE_URL, {
         method: 'POST',
         body: formData,
+        credentials: 'include', // Include credentials if your CORS settings require it
+        headers: {
+            'Accept': 'application/json',
+        },
     });
     if (response.status === 201) {
-        return await response.json(); // Return the response if upload is successful
+        return await response.json();
     } else if (response.status === 400) {
-        console.log(response);
         throw new Error('Validation failed');
     } else {
         throw new Error('Failed to upload document');
