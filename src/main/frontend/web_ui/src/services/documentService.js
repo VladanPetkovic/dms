@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8081/documents'; // Set the base URL to include the port
+const BASE_URL = 'http://localhost:8081/documents';
 
 export async function getDocuments(name = "", page = 0, maxCountDocuments = 10) {
     let url = `${BASE_URL}?page=${page}&maxCountDocuments=${maxCountDocuments}`;
@@ -14,7 +14,6 @@ export async function uploadDocument(formData) {
     const response = await fetch(BASE_URL, {
         method: 'POST',
         body: formData,
-        credentials: 'include', // Include credentials if your CORS settings require it
         headers: {
             'Accept': 'application/json',
         },
