@@ -52,6 +52,16 @@ services:
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"  # Port for RabbitMQ client connections
+      - "15672:15672"  # Port for RabbitMQ management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
 networks:
   app-network:
     driver: bridge
