@@ -89,8 +89,8 @@ function App() {
     const handleDownload = async (id) => {
         try {
             await downloadDocument(id);
-            console.log("TO BE DONE");
-            showNotification('TO BE DONE');
+            console.log("Download initiated");
+            showNotification('Document download started!', 'success');
         } catch (error) {
             console.error(error);
             showNotification(error.message || 'Failed to download document', 'error');

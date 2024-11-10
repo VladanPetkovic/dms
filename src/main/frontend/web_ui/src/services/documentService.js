@@ -55,6 +55,36 @@ export async function deleteDocument(id) {
 }
 
 export async function downloadDocument(id) {
-    // TODO: implement
-    return [];
+    try {
+        const response = await fetch(`${BASE_URL}/${id}/download`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/octet-stream',
+            },
+        });
+
+        console.log(response);
+
+        if (!response.ok) {
+            throw new Error('Document not found or failed to download');
+        }
+
+        const contentDisposition = response.headers.get('Content-Disposition');
+        const fileName = contentDisposition
+            ? contentDisposition.split('filename=')[1].replace(/"/g, '')
+            : 'downloaded-file';
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Error downloading document:', error);
+        throw error;
+    }
 }

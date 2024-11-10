@@ -2,6 +2,7 @@ package org.example.dms.rest.service;
 
 import jakarta.validation.*;
 import lombok.extern.slf4j.Slf4j;
+import org.example.dms.rest.app.FileUpload;
 import org.example.dms.rest.dto.DocumentDTO;
 import org.example.dms.rest.exception.DocumentValidationException;
 import org.example.dms.rest.mapper.DocumentMapper;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -37,10 +39,12 @@ public class DocumentService {
         log.info("Saving document file: {}", file.getOriginalFilename());
         try {
             Document document = mapper.toDocument(documentDTO);
-            document.setPath("TODO"); // TODO: set the actual path
+            String uniqueFileName = FileUpload.getUniqueFileName(file);
+            document.setPath(uniqueFileName);
             document.setCreated_at(LocalDateTime.now());
             document.setType(file.getContentType());
             validateDocument(document);
+            FileUpload.saveFileLocally(file, uniqueFileName);
             Document savedDocument = documentRepository.save(document);
             return mapper.toDocumentDTO(savedDocument);
         } catch (DocumentValidationException e) {
@@ -127,6 +131,17 @@ public class DocumentService {
             log.error("Failed to delete document with ID: {}", id, e);
             throw e;
         }
+    }
+
+    public File getDocumentFile(Long id) {
+        String fileName = documentRepository.findByIdGetPath(id).orElse("");
+
+        if (fileName.isEmpty()) {
+            log.error("File path not found for document with ID: " + id);
+            return null;
+        }
+
+        return FileUpload.getFileFromFolder(FileUpload.FOLDER_PATH + "/" + fileName);
     }
 
     private void validateDocument(Document document) {
