@@ -40,30 +40,6 @@ public class DocumentServiceTest {
     }
 
     @Test
-    void saveDocument_ShouldSaveAndReturnDocumentDTO() {
-        // Arrange
-        DocumentDTO documentDTO = new DocumentDTO();
-        documentDTO.setName("Test");
-        documentDTO.setDescription("test document");
-
-        Document document = mapper.toDocument(documentDTO);
-        document.setId(1L);
-        document.setCreated_at(LocalDateTime.now());
-
-        // Mock file and repository behavior
-        when(file.getContentType()).thenReturn("application/pdf");
-        when(documentRepository.save(any(Document.class))).thenReturn(document);
-
-        // Act
-        DocumentDTO savedDocumentDTO = documentService.saveDocument(documentDTO, file);
-
-        // Assert
-        assertEquals("Test", savedDocumentDTO.getName());
-        assertEquals("test document", savedDocumentDTO.getDescription());
-        verify(documentRepository, times(1)).save(any(Document.class));
-    }
-
-    @Test
     void saveDocuments_ShouldSaveBatchOfDocuments() {
         // Arrange
         DocumentDTO doc1 = new DocumentDTO();

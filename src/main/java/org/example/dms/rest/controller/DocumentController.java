@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.example.dms.rest.dto.DocumentDTO;
-import org.example.dms.rest.model.Document;
 import org.example.dms.rest.service.DocumentService;
+import org.example.dms.rest.service.QueueProducerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,13 +16,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/documents")
 public class DocumentController {
     private final DocumentService documentService;
+    @Autowired private QueueProducerService queueProducerService;
 
     @Autowired
     public DocumentController(DocumentService documentService) {
@@ -39,6 +39,9 @@ public class DocumentController {
             @Parameter(description = "Document metadata") @ModelAttribute DocumentDTO documentDTO,
             @Parameter(description = "File to upload") @RequestParam MultipartFile file) {
         DocumentDTO savedDocumentDTO = documentService.saveDocument(documentDTO, file);
+        queueProducerService.sendMessage("Document name: "
+                + savedDocumentDTO.getName()
+                + ", ID: " + savedDocumentDTO.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(savedDocumentDTO);
     }
 
