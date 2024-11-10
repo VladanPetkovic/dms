@@ -3,6 +3,7 @@ package org.example.dms.rest.app;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.io.Resource;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class FileUploadTest {
 
     @Test
     public void testGetFileFromFolder_FileExists() {
-        File file = FileUpload.getFileFromFolder(FOLDER_PATH + '/' + TEST_FILE_NAME);
+        Resource file = FileUpload.getFileFromFolder(FOLDER_PATH + '/' + TEST_FILE_NAME);
 
         assertNotNull(file);
         assertTrue(file.exists(), "File should exist");
@@ -53,7 +54,7 @@ public class FileUploadTest {
     @Test
     public void testGetFileFromFolder_FileDoesNotExist() {
         String nonExistentFile = "nonexistentfile.txt";
-        File file = FileUpload.getFileFromFolder(nonExistentFile);
+        Resource file = FileUpload.getFileFromFolder(nonExistentFile);
 
         assertNull(file);
     }

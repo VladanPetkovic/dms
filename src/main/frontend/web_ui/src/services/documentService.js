@@ -63,8 +63,6 @@ export async function downloadDocument(id) {
             },
         });
 
-        console.log(response);
-
         if (!response.ok) {
             throw new Error('Document not found or failed to download');
         }

@@ -9,6 +9,7 @@ import org.example.dms.rest.dto.DocumentDTO;
 import org.example.dms.rest.service.DocumentService;
 import org.example.dms.rest.service.QueueProducerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -113,10 +114,10 @@ public class DocumentController {
             @ApiResponse(responseCode = "404", description = "Document not found")
     })
     @GetMapping("/{id}/download")
-    public ResponseEntity<File> downloadDocument(
+    public ResponseEntity<Resource> downloadDocument(
             @Parameter(description = "ID of the document") @PathVariable Long id) {
         log.info("Requested download for document with id: " + id);
-        File file = documentService.getDocumentFile(id);
+        Resource resource = documentService.getDocumentFile(id);
         Optional<DocumentDTO> documentDTO = documentService.getDocumentById(id);
         String contentType = null;
         String fileName = null;
@@ -125,7 +126,7 @@ public class DocumentController {
             fileName = documentDTO.get().getName();
         }
 
-        if (file == null || contentType == null) {
+        if (resource == null || contentType == null) {
             log.error("File not found: " + id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -133,6 +134,6 @@ public class DocumentController {
         return ResponseEntity.ok()
                 .contentType(org.springframework.http.MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
-                .body(file);
+                .body(resource);
     }
 }

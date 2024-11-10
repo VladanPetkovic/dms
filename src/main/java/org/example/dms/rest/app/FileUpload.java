@@ -1,6 +1,8 @@
 package org.example.dms.rest.app;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -31,15 +33,16 @@ public class FileUpload {
         return UUID.randomUUID() + fileExtension;
     }
 
-    public static File getFileFromFolder(String fileName) {
+    public static Resource getFileFromFolder(String fileName) {
         log.info("Filename: " + fileName);
         File file = new File(fileName);
+        Resource resource = new FileSystemResource(file);
 
-        if (!file.exists()) {
+        if (!resource.exists()) {
             log.error("File does not exist: " + fileName);
             return null;
         }
 
-        return file;
+        return resource;
     }
 }

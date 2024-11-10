@@ -9,12 +9,12 @@ import org.example.dms.rest.mapper.DocumentMapper;
 import org.example.dms.rest.model.Document;
 import org.example.dms.rest.repository.DocumentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -133,7 +133,7 @@ public class DocumentService {
         }
     }
 
-    public File getDocumentFile(Long id) {
+    public Resource getDocumentFile(Long id) {
         String fileName = documentRepository.findByIdGetPath(id).orElse("");
 
         if (fileName.isEmpty()) {
