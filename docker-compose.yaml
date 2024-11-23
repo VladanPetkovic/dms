@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  springboot-app:
+  springboot-rest:
     build:
-      context: .
-      dockerfile: src/main/java/Dockerfile
-    container_name: springboot-container
+      context: ./paperless_rest
+      dockerfile: Dockerfile
+    container_name: PaperlessREST
     ports:
       - "8081:8081"  # Map host port 8081 to container port 8081
     environment:
@@ -13,6 +13,20 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/document_management_system
       - SPRING_DATASOURCE_USERNAME=postgres     # TODO: change to not be hardcoded
       - SPRING_DATASOURCE_PASSWORD=postgres     # TODO: change to not be hardcoded
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - rabbitmq
+    networks:
+      - app-network
+
+  springboot-services:
+    build:
+      context: ./paperless_services
+      dockerfile: Dockerfile        # we will only look in /paperless_services for the dockerfile
+    container_name: PaperlessServices
+    ports:
+      - "8082:8082"  # Map host port 8082 to container port 8082
+    environment:
       - SPRING_RABBITMQ_HOST=rabbitmq
     depends_on:
       - rabbitmq
@@ -49,7 +63,7 @@ services:
   react-app:
     build:
       context: .
-      dockerfile: src/main/frontend/Dockerfile
+      dockerfile: frontend/Dockerfile
     ports:
       - "80:80"
     volumes:
@@ -64,6 +78,19 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - app-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000" # MinIO API
+      - "9090:9090" # MinIO Console
+    environment:
+      MINIO_ROOT_USER: "admin"
+      MINIO_ROOT_PASSWORD: "admin_password"
+    command: server /data --console-address ":9090"
     networks:
       - app-network
 
