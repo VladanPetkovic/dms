@@ -32,6 +32,8 @@ services:
       - rabbitmq
     networks:
       - app-network
+    volumes:
+      - .src/main/resources/tessdata:/src/main/resources/tessdata
 
   postgres:
     image: postgres:alpine

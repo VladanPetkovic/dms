@@ -9,7 +9,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 
 @Service
@@ -51,17 +55,25 @@ public class StorageService {
         }
     }
 
-    public Resource load(String filename) {
+    public Path loadAndSave(String filename) {
         try {
+            String extension = filename.substring(filename.lastIndexOf('.') + 1);
+            if (!extension.matches("png|jpg|jpeg")) {
+                throw new IOException("Unsupported image format: " + extension);
+            }
+
+            Path tempFile = Files.createTempFile("ocr-", "." + extension);
+
             InputStream inputStream = minioClient.getObject(
                     GetObjectArgs.builder()
                             .bucket(bucketName)
                             .object(filename)
                             .build()
             );
-            return new InputStreamResource(inputStream);
+            Files.copy(inputStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
+            return tempFile;
         } catch (Exception e) {
-            throw new StorageException("Failed to load file from MinIO", e);
+            throw new StorageException("Failed to load and save file from MinIO", e);
         }
     }
 

@@ -9,5 +9,7 @@ RUN mvn clean package
 FROM openjdk:17-jdk-alpine
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
+# including hello.png for tests
+COPY --from=build /app/src/test/resources /app
 EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]
