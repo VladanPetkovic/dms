@@ -1,4 +1,4 @@
-package org.example.paperless_rest.config;
+package org.example.paperless_services.config;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,4 +1,4 @@
-package org.example.paperless_rest.exception;
+package org.example.paperless_services.exception;
 
 public class StorageException extends RuntimeException {
     public StorageException(String message) {

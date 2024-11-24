@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.example.paperless_rest.dto.DocumentDTO;
 import org.example.paperless_rest.service.DocumentService;
-import org.example.paperless_rest.service.QueueProducerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -26,8 +25,6 @@ import java.util.Optional;
 @Slf4j
 public class DocumentController {
     private final DocumentService documentService;
-    @Autowired
-    private QueueProducerService queueProducerService;
 
     @Autowired
     public DocumentController(DocumentService documentService) {
@@ -45,9 +42,6 @@ public class DocumentController {
             @Parameter(description = "File to upload") @RequestParam MultipartFile file) {
         log.info("Got document with name: " + documentDTO.getName());
         DocumentDTO savedDocumentDTO = documentService.saveDocument(documentDTO, file);
-        queueProducerService.sendMessage("Document name: "
-                + savedDocumentDTO.getName()
-                + ", ID: " + savedDocumentDTO.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(savedDocumentDTO);
     }
 

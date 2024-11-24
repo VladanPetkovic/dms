@@ -1,8 +1,8 @@
-package org.example.paperless_rest.service;
+package org.example.paperless_services.service;
 
 import io.minio.*;
-import org.example.paperless_rest.config.StorageConfig;
-import org.example.paperless_rest.exception.StorageException;
+import org.example.paperless_services.config.StorageConfig;
+import org.example.paperless_services.exception.StorageException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -78,6 +78,7 @@ public class StorageService {
         }
     }
 }
+
 
 
 

@@ -1,7 +1,6 @@
 package org.example.paperless_rest.service;
 
 import org.example.paperless_rest.dto.DocumentDTO;
-import org.example.paperless_rest.mapper.DocumentMapper;
 import org.example.paperless_rest.model.Document;
 import org.example.paperless_rest.repository.DocumentRepository;
 import org.junit.jupiter.api.Assertions;
@@ -25,6 +24,8 @@ import static org.mockito.Mockito.*;
 public class DocumentServiceTest {
     @Mock
     private DocumentRepository documentRepository;
+    @Mock
+    private StorageService storageService;
 
     @Mock
     private MultipartFile file; // Mocking MultipartFile for file upload tests
@@ -32,33 +33,9 @@ public class DocumentServiceTest {
     @InjectMocks
     private DocumentService documentService;
 
-    private final DocumentMapper mapper = DocumentMapper.INSTANCE;
-
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-    }
-
-    @Test
-    void saveDocuments_ShouldSaveBatchOfDocuments() {
-        // Arrange
-        DocumentDTO doc1 = new DocumentDTO();
-        doc1.setName("Doc 1");
-        DocumentDTO doc2 = new DocumentDTO();
-        doc2.setName("Doc 2");
-
-        List<DocumentDTO> documentDTOs = List.of(doc1, doc2);
-        List<Document> documents = documentDTOs.stream().map(mapper::toDocument).toList();
-
-        // Mock repository behavior
-        when(documentRepository.saveAll(anyList())).thenReturn(documents);
-
-        // Act
-        List<DocumentDTO> savedDocumentDTOs = documentService.saveDocuments(documentDTOs);
-
-        // Assert
-        assertEquals(2, savedDocumentDTOs.size());
-        verify(documentRepository, times(1)).saveAll(anyList());
     }
 
     @Test
@@ -121,16 +98,55 @@ public class DocumentServiceTest {
     }
 
     @Test
-    void deleteDocument_ShouldDeleteDocumentById() {
+    void deleteDocument_Success() {
         // Arrange
         Long documentId = 1L;
-        doNothing().when(documentRepository).deleteById(documentId);
+        Document mockDocument = new Document();
+        mockDocument.setId(documentId);
+        mockDocument.setPath("test/path/to/document");
+
+        when(documentRepository.findById(documentId)).thenReturn(Optional.of(mockDocument));
 
         // Act
         documentService.deleteDocument(documentId);
 
         // Assert
+        verify(storageService, times(1)).delete("test/path/to/document");
         verify(documentRepository, times(1)).deleteById(documentId);
+    }
+
+    @Test
+    void testDeleteDocument_DocumentNotFound() {
+        // Arrange
+        Long documentId = 1L;
+
+        when(documentRepository.findById(documentId)).thenReturn(Optional.empty());
+
+        // Act
+        documentService.deleteDocument(documentId);
+
+        // Assert
+        verify(storageService, never()).delete(anyString());
+        verify(documentRepository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    void testDeleteDocument_StorageServiceThrowsException() {
+        // Arrange
+        Long documentId = 1L;
+        Document mockDocument = new Document();
+        mockDocument.setId(documentId);
+        mockDocument.setPath("test/path/to/document");
+
+        when(documentRepository.findById(documentId)).thenReturn(Optional.of(mockDocument));
+        doThrow(new RuntimeException("Storage service failure")).when(storageService).delete(anyString());
+
+        // Act & Assert
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> documentService.deleteDocument(documentId));
+        assertEquals("Storage service failure", exception.getMessage());
+
+        verify(storageService, times(1)).delete("test/path/to/document");
+        verify(documentRepository, never()).deleteById(documentId); // repository not called
     }
 
     @Test

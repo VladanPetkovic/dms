@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.paperless_rest.app.FileUpload;
 import org.example.paperless_rest.dto.DocumentDTO;
 import org.example.paperless_rest.exception.DocumentValidationException;
+import org.example.paperless_rest.exception.StorageException;
 import org.example.paperless_rest.mapper.DocumentMapper;
 import org.example.paperless_rest.model.Document;
 import org.example.paperless_rest.repository.DocumentRepository;
@@ -25,10 +26,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DocumentService {
     private final DocumentRepository documentRepository;
+    private final StorageService storageService;
+    private final QueueProducerService queueProducerService;
 
     @Autowired
-    public DocumentService(DocumentRepository documentRepository) {
+    public DocumentService(DocumentRepository documentRepository, StorageService storageService, QueueProducerService qp) {
         this.documentRepository = documentRepository;
+        this.storageService = storageService;
+        this.queueProducerService = qp;
     }
 
     private final DocumentMapper mapper = DocumentMapper.INSTANCE;
@@ -44,28 +49,20 @@ public class DocumentService {
             document.setCreated_at(LocalDateTime.now());
             document.setType(file.getContentType());
             validateDocument(document);
-            FileUpload.saveFileLocally(file, uniqueFileName);
+            storageService.store(file, uniqueFileName);
             Document savedDocument = documentRepository.save(document);
+            queueProducerService.sendMessage(uniqueFileName);
             return mapper.toDocumentDTO(savedDocument);
         } catch (DocumentValidationException e) {
             log.error("Validation error while saving document ", e);
             throw new DocumentValidationException(e.getMessage());
+        } catch (StorageException e) {
+            log.error("Storage error while saving document ", e);
+            throw new StorageException(e.getMessage());
         } catch (Exception e) {
             log.error("Error while saving document ", e);
             throw new RuntimeException("Failed to save document ", e);
         }
-    }
-
-    public List<DocumentDTO> saveDocuments(List<DocumentDTO> documentDTOs) {
-        log.info("Attempting to save a batch of documents, count: {}", documentDTOs.size());
-        List<Document> documents = documentDTOs.stream()
-                .map(mapper::toDocument)
-                .collect(Collectors.toList());
-        List<Document> savedDocuments = documentRepository.saveAll(documents);
-        log.info("Batch of documents saved successfully, total: {}", savedDocuments.size());
-        return savedDocuments.stream()
-                .map(mapper::toDocumentDTO)
-                .collect(Collectors.toList());
     }
 
     public List<DocumentDTO> getAllDocuments() {
@@ -124,9 +121,13 @@ public class DocumentService {
 
     public void deleteDocument(Long id) {
         log.info("Attempting to delete document with ID: {}", id);
+        Optional<Document> existingDocument = documentRepository.findById(id);
         try {
-            documentRepository.deleteById(id);
-            log.info("Document deleted successfully with ID: {}", id);
+            if (existingDocument.isPresent()) {
+                storageService.delete(existingDocument.get().getPath());
+                documentRepository.deleteById(id);
+                log.info("Document deleted successfully with ID: {}", id);
+            }
         } catch (Exception e) {
             log.error("Failed to delete document with ID: {}", id, e);
             throw e;
@@ -141,7 +142,7 @@ public class DocumentService {
             return null;
         }
 
-        return FileUpload.getFileFromFolder(FileUpload.FOLDER_PATH + "/" + fileName);
+        return storageService.load(fileName);
     }
 
     private void validateDocument(Document document) {
