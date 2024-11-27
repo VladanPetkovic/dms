@@ -7,9 +7,14 @@ RUN mvn clean package
 
 # Use an OpenJDK image to run the Spring Boot app
 FROM openjdk:17-jdk-alpine
+# needed for tess4j - start
+RUN apk update
+RUN apk add --no-cache tesseract-ocr
+RUN mkdir -p /app/tessdata
+ADD https://github.com/tesseract-ocr/tessdata_best/raw/main/eng.traineddata /app/tessdata/eng.traineddata
+ADD https://github.com/tesseract-ocr/tessdata_best/raw/main/osd.traineddata /app/tessdata/osd.traineddata
+# needed for tess4j - end
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
-# including hello.png for tests
-COPY --from=build /app/src/test/resources /app
 EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]
