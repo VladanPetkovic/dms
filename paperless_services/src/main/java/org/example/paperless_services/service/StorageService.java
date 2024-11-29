@@ -58,8 +58,8 @@ public class StorageService {
     public Path loadAndSave(String filename) {
         try {
             String extension = filename.substring(filename.lastIndexOf('.') + 1);
-            if (!extension.matches("png|jpg|jpeg")) {
-                throw new IOException("Unsupported image format: " + extension);
+            if (!extension.matches("png|jpg|jpeg|pdf")) {
+                throw new IOException("Unsupported file format: " + extension + ". Only accepting png, jpg, jpeg and pdf.");
             }
 
             Path tempFile = Files.createTempFile("ocr-", "." + extension);

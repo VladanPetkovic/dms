@@ -15,7 +15,7 @@ public class QueueProducerService {
     public void sendMessage(String message) {
         log.info("About to send message: " + message);
         rabbitTemplate.convertAndSend(RabbitMqConfig.RESULT_QUEUE, message);
-        log.info("Message send successfully to RESULT_QUEUE!");
+        log.info("Message sent successfully to RESULT_QUEUE!");
     }
 }
 

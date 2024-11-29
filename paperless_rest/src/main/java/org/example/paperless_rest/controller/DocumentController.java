@@ -34,12 +34,12 @@ public class DocumentController {
     @Operation(summary = "Upload a new document")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Document uploaded successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid input")
+            @ApiResponse(responseCode = "400", description = "Validation failed")
     })
     @PostMapping
     public ResponseEntity<DocumentDTO> uploadDocument(
             @Parameter(description = "Document metadata") @ModelAttribute DocumentDTO documentDTO,
-            @Parameter(description = "File to upload") @RequestParam MultipartFile file) {
+            @Parameter(description = "File to upload (Only types: image/png, image/jpeg, image/jpg, application/pdf)") @RequestParam MultipartFile file) {
         log.info("Got document with name: " + documentDTO.getName());
         DocumentDTO savedDocumentDTO = documentService.saveDocument(documentDTO, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedDocumentDTO);

@@ -3,6 +3,7 @@ package org.example.paperless_rest.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,7 +30,8 @@ public class Document {
     private LocalDateTime updated_at;
     private String path;
 
-    // (e.g., "application/pdf", "text/plain")
+    @Pattern(regexp = "image/png|image/jpeg|image/jpg|application/pdf",
+            message = "Type must be one of: image/png, image/jpeg, image/jpg, application/pdf")
     @NotNull(message = "Type cannot be null")
     private String type;
 }

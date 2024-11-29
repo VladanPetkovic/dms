@@ -84,7 +84,7 @@ public class DocumentServiceTest {
         DocumentDTO updatedDocumentDTO = new DocumentDTO();
         updatedDocumentDTO.setName("Updated");
         updatedDocumentDTO.setDescription("Updated");
-        updatedDocumentDTO.setType("pdf");
+        updatedDocumentDTO.setType("application/pdf");
 
         when(documentRepository.findById(1L)).thenReturn(Optional.of(existingDocument));
         when(documentRepository.save(any(Document.class))).thenAnswer(invocation -> invocation.getArgument(0));

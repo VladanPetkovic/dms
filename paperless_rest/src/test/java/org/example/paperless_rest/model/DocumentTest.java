@@ -75,6 +75,32 @@ public class DocumentTest {
     }
 
     @Test
+    public void whenTypeIsValid_thenValidationSucceeds() {
+        Document document = new Document();
+        document.setName("ValidName");
+        document.setDescription("Valid Description");
+        document.setType("image/png");  // valid type
+
+        Set<ConstraintViolation<Document>> violations = validator.validate(document);
+
+        assertTrue(violations.isEmpty(), "Validation should pass for a valid MIME type");
+    }
+
+    @Test
+    public void whenTypeIsInvalid_thenValidationFails() {
+        Document document = new Document();
+        document.setName("ValidName");
+        document.setDescription("Valid Description");
+        document.setType("image/gif");  // invalid type
+
+        Set<ConstraintViolation<Document>> violations = validator.validate(document);
+
+        assertTrue(violations.stream().anyMatch(v ->
+                v.getMessage().equals("Type must be one of: image/png, image/jpeg, image/jpg, application/pdf")
+        ), "Validation should fail for an invalid MIME type");
+    }
+
+    @Test
     public void whenDocumentIsValid_thenNoValidationErrors() {
         Document document = new Document();
         document.setName("ValidName");
