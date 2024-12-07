@@ -61,6 +61,22 @@ public class DocumentController {
         return ResponseEntity.ok(documentPage);
     }
 
+    @Operation(summary = "Search in Documents")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Retrieved all documents")
+    })
+    @GetMapping("/search")
+    public ResponseEntity<Page<DocumentDTO>> search(
+            @RequestParam String search,                            // String for ElasticSearch
+            @RequestParam(defaultValue = "0") int page,             // Page number (defaults to 0)
+            @RequestParam(defaultValue = "10") int maxCountDocuments // Max documents per page (defaults to 10)
+    ) {
+        log.info("Elastic search for String: " + search);
+        Pageable pageable = PageRequest.of(page, maxCountDocuments);
+        Page<DocumentDTO> documentPage = documentService.searchDocuments(search, pageable);
+        return ResponseEntity.ok(documentPage);
+    }
+
     @Operation(summary = "Get document by ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Document found"),

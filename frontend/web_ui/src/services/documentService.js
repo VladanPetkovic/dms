@@ -10,6 +10,14 @@ export async function getDocuments(name = "", page = 0, maxCountDocuments = 10) 
     return await response.json();
 }
 
+export async function searchDocuments(searchTerm, page = 0, maxCountDocuments = 10) {
+    let url = `${BASE_URL}/search?search=${searchTerm}?page=${page}&maxCountDocuments=${maxCountDocuments}`;
+    const response = await fetch(url);
+    console.log(response);
+    if (!response.ok) throw new Error('Failed to search for documents');
+    return await response.json();
+}
+
 export async function uploadDocument(formData) {
     const response = await fetch(BASE_URL, {
         method: 'POST',

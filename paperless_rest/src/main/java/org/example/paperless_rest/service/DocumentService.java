@@ -28,12 +28,14 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final StorageService storageService;
     private final QueueProducerService queueProducerService;
+    private final ElasticSearchService elasticSearchService;
 
     @Autowired
-    public DocumentService(DocumentRepository documentRepository, StorageService storageService, QueueProducerService qp) {
+    public DocumentService(DocumentRepository documentRepository, StorageService storageService, QueueProducerService qp, ElasticSearchService ess) {
         this.documentRepository = documentRepository;
         this.storageService = storageService;
         this.queueProducerService = qp;
+        this.elasticSearchService = ess;
     }
 
     private final DocumentMapper mapper = DocumentMapper.INSTANCE;
@@ -94,6 +96,18 @@ public class DocumentService {
         } else {
             documentPage = documentRepository.findByNameContainingIgnoreCase(name, pageable);
         }
+        return documentPage.map(mapper::toDocumentDTO);
+    }
+
+    public Page<DocumentDTO> searchDocuments(String search, Pageable pageable) {
+        List<String> fileNames = elasticSearchService.searchDocuments(search, pageable);
+        if (fileNames.isEmpty()) {
+            log.info("No files for search: " + search);
+            return Page.empty();
+        }
+
+        log.info("Found {} file/s for search: {}", fileNames.size(), search);
+        Page<Document> documentPage = documentRepository.findByFileNames(fileNames, pageable);
         return documentPage.map(mapper::toDocumentDTO);
     }
 

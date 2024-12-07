@@ -1,20 +1,20 @@
 import React from 'react';
 import '../style/index.css';
 
-function SearchBar({onSearch}) {
+function ElasticSearchBar({onSearch}) {
     const handleSearch = (e) => {
         onSearch(e.target.value);
     };
 
     return (
         <div className="search-bar">
-            <label htmlFor="name-search">Search via Document-name:</label>
+            <label htmlFor="full-text-search">Search via Document-content:</label>
             <input type="text"
-                   id="name-search"
+                   id="full-text-search"
                    placeholder="Search..."
                    onChange={handleSearch}/>
         </div>
     );
 }
 
-export default SearchBar;
+export default ElasticSearchBar;

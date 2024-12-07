@@ -6,23 +6,30 @@ import SearchBar from './components/SearchBar';
 import DocumentTable from './components/DocumentTable';
 import {
     getDocuments,
+    searchDocuments,
     uploadDocument,
     deleteDocument,
     updateDocumentById,
     downloadDocument
 } from './services/documentService';
 import Pagination from "./components/Pagination";
+import ElasticSearchBar from "./components/ElasticSearchBar";
 
 function App() {
     const [documents, setDocuments] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [elasticQuery, setElasticQuery] = useState('');
     const [totalPages, setTotalPages] = useState(0);
     const [currentPage, setCurrentPage] = useState(0);
     const [notification, setNotification] = useState(null);
 
     useEffect(() => {
-        fetchDocuments();
-    }, [searchQuery, currentPage]);
+        if (elasticQuery && !searchQuery) {
+            searchElasticDocuments(); // fetch documents using Elasticsearch
+        } else {
+            fetchDocuments();
+        }
+    }, [searchQuery, elasticQuery, currentPage]);
 
     /**
      * Function to show notification and auto-hide it after 5 seconds
@@ -44,12 +51,31 @@ function App() {
         }
     };
 
+    const searchElasticDocuments = async () => {
+        try {
+            const response = await searchDocuments(elasticQuery, currentPage);
+            console.log(response);
+            setDocuments(response.content);
+            setTotalPages(response.totalPages);
+        } catch (error) {
+            console.error(error);
+            showNotification('Error searching documents', 'error');
+        }
+    };
+
     const handlePageChange = (newPage) => {
         setCurrentPage(newPage);
     };
 
-    const handleSearch = async (query) => {
+    const handleDocumentNameSearch = async (query) => {
+        setElasticQuery(''); // reset
         setSearchQuery(query);
+        setCurrentPage(0);
+    };
+
+    const handleElasticSearch = async (query) => {
+        setSearchQuery(''); // reset
+        setElasticQuery(query);
         setCurrentPage(0);
     };
 
@@ -106,7 +132,8 @@ function App() {
                 </div>
             )}
             <UploadForm onUpload={handleUpload}/>
-            <SearchBar onSearch={handleSearch}/>
+            <SearchBar onSearch={handleDocumentNameSearch}/>
+            <ElasticSearchBar onSearch={handleElasticSearch}/>
             <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange}/>
             <DocumentTable documents={documents} onDelete={handleDelete} onUpdate={handleUpdate}
                            onDownload={handleDownload}/>
