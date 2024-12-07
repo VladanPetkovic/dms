@@ -96,19 +96,32 @@ services:
       - app-network
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.16.1
     container_name: elasticsearch
     environment:
-      - discovery.type=single-node
+      - discovery.type=single-node # only single instance needed
       - xpack.security.enabled=false
       - bootstrap.memory_lock=true
-    ulimits:
+    ulimits: # allowing "unlimited" memory
       memlock:
         soft: -1
         hard: -1
     ports:
       - "9200:9200"
-      - "9300:9300"
+    networks:
+      - app-network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.16.1
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "9092:5601" # Map Kibana's default port 5601 to 9092 on the host
+    depends_on:
+      - elasticsearch
+    networks:
+      - app-network
 
 networks:
   app-network:
