@@ -15,4 +15,5 @@ public class DocumentDTO {
     private LocalDateTime updatedAt;
     private String path;
     private String type;
+    private String content;
 }

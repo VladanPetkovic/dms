@@ -32,7 +32,7 @@ public class QueueConsumerService {
             String ocrResult = ocrService.processFile(filePath);
 
             // 6a: sending the result back
-            queueProducerService.sendMessage(ocrResult);
+            queueProducerService.sendMessage(fileName, ocrResult);
 
             // 6b: index document
             elasticSearchService.indexDocument(fileName, ocrResult);

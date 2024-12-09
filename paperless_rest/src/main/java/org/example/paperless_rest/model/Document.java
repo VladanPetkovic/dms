@@ -34,4 +34,7 @@ public class Document {
             message = "Type must be one of: image/png, image/jpeg, image/jpg, application/pdf")
     @NotNull(message = "Type cannot be null")
     private String type;
+
+    @Size(max = 1000, message = "Content cannot exceed 1000 characters")
+    private String content;
 }

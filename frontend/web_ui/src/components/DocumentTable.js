@@ -22,7 +22,7 @@ function DocumentTable({documents, onDelete, onUpdate, onDownload}) {
 
     const handleChange = (e) => {
         const {name, value} = e.target;
-        setEditData((prev) => ({ ...prev, [name]: value }));
+        setEditData((prev) => ({...prev, [name]: value}));
     };
 
     return (
@@ -35,6 +35,7 @@ function DocumentTable({documents, onDelete, onUpdate, onDownload}) {
                     <th>Description</th>
                     <th>Created At</th>
                     <th>Updated At</th>
+                    <th>Content-preview</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
@@ -74,6 +75,7 @@ function DocumentTable({documents, onDelete, onUpdate, onDownload}) {
                         </td>
                         <td>{new Date(doc.createdAt).toLocaleString()}</td>
                         <td>{doc.updatedAt == null ? "-" : new Date(doc.updatedAt).toLocaleString()}</td>
+                        <td>{doc.content == null ? "-" : doc.content}</td>
                         <td>
                             <div className="action-buttons">
                                 {editId === doc.id ? (

@@ -20,4 +20,6 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 
     @Query("SELECT d FROM Document d WHERE d.path IN :fileNames")
     Page<Document> findByFileNames(@Param("fileNames") List<String> fileNames, Pageable pageable);
+
+    Document findDocumentByPath(String fileName);
 }

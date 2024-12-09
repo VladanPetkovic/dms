@@ -12,9 +12,9 @@ public class QueueProducerService {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
-    public void sendMessage(String message) {
-        log.info("About to send message: " + message);
-        rabbitTemplate.convertAndSend(RabbitMqConfig.RESULT_QUEUE, message);
+    public void sendMessage(String fileName, String message) {
+        log.info("About to send message for fileName: " + fileName);
+        rabbitTemplate.convertAndSend(RabbitMqConfig.RESULT_QUEUE, fileName + ";" + message);
         log.info("Message sent successfully to RESULT_QUEUE!");
     }
 }

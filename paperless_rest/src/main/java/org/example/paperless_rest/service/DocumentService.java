@@ -159,6 +159,21 @@ public class DocumentService {
         return storageService.load(fileName);
     }
 
+    public void addContent(String fileName, String content) {
+        log.info("Attempting to add document-content with fileName: {}", fileName);
+        Document existingDocument = documentRepository.findDocumentByPath(fileName);
+        try {
+            if (existingDocument != null) {
+                existingDocument.setContent(content);
+                documentRepository.save(existingDocument);
+                log.info("Document-content successfully added!");
+            }
+        } catch (Exception e) {
+            log.error("Failed to add document-content", e);
+            throw e;
+        }
+    }
+
     private void validateDocument(Document document) {
         Set<ConstraintViolation<Document>> violations = validator.validate(document);
         // return if no violations
